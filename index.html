@@ -24,19 +24,6 @@
             overflow-x: hidden;
         }
 
-        /* 閃光燈全螢幕覆蓋層 */
-        #flash-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background-color: white;
-            z-index: 9999; /* 確保在最上層 */
-            opacity: 0;
-            pointer-events: none; /* 讓滑鼠可以穿透，不影響點擊 */
-        }
-
         .card-container {
             width: 90%;
             max-width: 500px;
@@ -130,10 +117,6 @@
 </head>
 <body>
 
-    <div id="flash-overlay"></div>
-
-    <audio id="shutter-sound" src="https://actions.google.com/sounds/v1/foley/camera_shutter.ogg" preload="auto"></audio>
-
     <div class="card-container">
         <div class="profile">
             <img src="me.jpg" alt="劉家誠" class="avatar" id="avatar-img">
@@ -214,30 +197,22 @@
     </div>
 
     <script>
-        // --- 閃光燈與快門特效邏輯 ---
-        const shutterSound = document.getElementById('shutter-sound');
-        const flashOverlay = document.getElementById('flash-overlay');
+        // --- 穩定的 MP3 快門音效 ---
+        // 使用 mixkit 提供的免費高品質音效，mp3 格式全平台支援
+        const shutterSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3');
+        shutterSound.volume = 0.8; // 設定音量
 
         function triggerCameraEffect() {
-            // 播放音效 (每次點擊都重置時間，確保可以連點)
+            // 每次點擊都從頭播放，確保連點有效
             shutterSound.currentTime = 0;
-            shutterSound.play();
-
-            // 觸發閃光燈白屏
-            flashOverlay.style.transition = 'none';
-            flashOverlay.style.opacity = '0.85'; // 閃光燈亮度
-            
-            // 50毫秒後開始淡出
-            setTimeout(() => {
-                flashOverlay.style.transition = 'opacity 0.5s ease-out';
-                flashOverlay.style.opacity = '0';
-            }, 50);
+            // 加上 catch 防止瀏覽器阻擋自動播放報錯
+            shutterSound.play().catch(e => console.log("音效被瀏覽器阻擋:", e));
         }
 
         // --- 綁定點擊特效 ---
         const avatarImg = document.getElementById('avatar-img');
         const openResumeBtn = document.getElementById('open-resume-btn');
-        const socialBtns = document.querySelectorAll('.social-btn'); // 抓取 IG 和 GitHub 按鈕
+        const socialBtns = document.querySelectorAll('.social-btn'); 
 
         // 大頭照點擊
         avatarImg.addEventListener('click', () => {
@@ -253,7 +228,7 @@
             resumeModal.style.display = 'flex'; 
         });
 
-        // IG 和 GitHub 點擊 (觸發特效後，瀏覽器會自然開啟新分頁)
+        // IG 和 GitHub 點擊 
         socialBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 triggerCameraEffect();
