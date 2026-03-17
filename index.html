@@ -9,9 +9,6 @@
             --bg-color: #000000;
             --text-color: #f0f0f0;
             --theme-color: #555;
-            /* 極光顏色定義 */
-            --aurora-green: rgba(0, 255, 136, 0.7);
-            --aurora-teal: rgba(0, 200, 255, 0.5);
         }
 
         body {
@@ -25,62 +22,60 @@
             align-items: center;
             min-height: 100vh;
             overflow-x: hidden;
-            position: relative; /* 為了讓極光層疊在背景上 */
+            position: relative; 
         }
 
-        /* --- 極光背景容器 (平常隱藏) --- */
-        #aurora-container {
+        /* --- 流星雨背景容器 --- */
+        #meteor-container {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: radial-gradient(circle at bottom left, #051020 0%, #000 70%); /* 深邃的夜空藍黑 */
-            opacity: 0; /* 平常透明 */
-            pointer-events: none; /* 滑鼠穿透，不影響點擊 */
-            z-index: 0; /* 在最底層，但在純黑背景之上 */
-            transition: opacity 2s ease-in-out; /* 慢慢浮現的過場 */
+            pointer-events: none; /* 讓滑鼠穿透 */
+            z-index: 0; 
+            overflow: hidden;
+            display: none; /* 平常隱藏 */
         }
 
-        /* 當啟動彩蛋時，顯示極光 */
-        body.aurora-active #aurora-container {
-            opacity: 1;
+        body.meteor-active #meteor-container {
+            display: block;
         }
 
-        /* 極光層 1 (綠色) */
-        #aurora-container::before,
-        #aurora-container::after {
+        /* 流星本體 CSS */
+        .meteor {
+            position: absolute;
+            width: 150px;
+            height: 2px;
+            /* 流星尾巴漸層 */
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.8) 100%);
+            transform: rotate(-45deg);
+            animation: shooting-star linear forwards;
+            filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.8));
+        }
+
+        /* 流星發光的頭部 */
+        .meteor::after {
             content: '';
             position: absolute;
-            width: 150%;
-            height: 150%;
-            top: -25%;
-            left: -25%;
-            background: 
-                repeating-linear-gradient(90deg, transparent, transparent 15px, var(--aurora-green) 20px, var(--aurora-green) 25px, transparent 30px, transparent 40px),
-                repeating-linear-gradient(-90deg, transparent, transparent 15px, var(--aurora-green) 20px, var(--aurora-green) 25px, transparent 30px, transparent 40px);
-            filter: blur(10px) contrast(3); /* 創造有機、模糊的光束感 */
-            animation: flowingAurora 60s infinite alternate; /* 慢速流動動畫 */
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 4px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 10px 3px rgba(255, 255, 255, 0.9);
         }
 
-        /* 極光層 2 (藍綠色，不同的旋轉角度與動畫時間) */
-        #aurora-container::after {
-            background: 
-                repeating-linear-gradient(45deg, transparent, transparent 10px, var(--aurora-teal) 15px, var(--aurora-teal) 20px, transparent 25px, transparent 35px),
-                repeating-linear-gradient(-45deg, transparent, transparent 10px, var(--aurora-teal) 15px, var(--aurora-teal) 20px, transparent 25px, transparent 35px);
-            filter: blur(15px) contrast(2);
-            animation-duration: 90s; /* 更慢的層次感 */
-            animation-delay: -30s; /* 讓它們不同步 */
+        @keyframes shooting-star {
+            0% { transform: translateX(0) translateY(0) rotate(-45deg); opacity: 0; }
+            10% { opacity: 1; }
+            80% { opacity: 0; }
+            100% { transform: translateX(-1500px) translateY(1500px) rotate(-45deg); opacity: 0; }
         }
 
-        /* 極光流動動畫 */
-        @keyframes flowingAurora {
-            0% { transform: scale(1) translate(0, 0); opacity: 0.8; }
-            50% { transform: scale(1.1) translate(5%, 5%); opacity: 1; }
-            100% { transform: scale(1) translate(-5%, -5%); opacity: 0.8; }
-        }
-
-        /* --- 主內容容器 (確保在極光之上) --- */
+        /* --- 主內容容器 --- */
         .card-container {
             width: 90%;
             max-width: 500px;
@@ -89,8 +84,8 @@
             align-items: center;
             text-align: center;
             padding: 2rem;
-            z-index: 1; /* 層級在極光背景之上 */
-            position: relative; /* 為了讓 z-index 生效 */
+            z-index: 1; 
+            position: relative; 
         }
 
         .avatar {
@@ -175,7 +170,7 @@
 </head>
 <body>
 
-    <div id="aurora-container"></div>
+    <div id="meteor-container"></div>
 
     <div class="card-container">
         <div class="profile">
@@ -210,8 +205,8 @@
 
         <div class="social-links">
             <button id="open-resume-btn" class="btn">經歷與作品</button>
-            <a href="https://www.instagram.com/lucas66666616?igsh=bWwyN2UwZmYybjFx" class="btn" target="_blank">Instagram</a>
-            <a href="https://github.com/Lucas66666677" class="btn" target="_blank">GitHub</a>
+            <a href="https://www.instagram.com/lucas66666616?igsh=bWwyN2UwZmYybjFx" class="btn social-btn" target="_blank">Instagram</a>
+            <a href="https://github.com/Lucas66666677" class="btn social-btn" target="_blank">GitHub</a>
         </div>
     </div>
 
@@ -257,11 +252,28 @@
     </div>
 
     <script>
-        // --- 彩蛋點擊計數器 ---
-        let prismClickCount = 0;
-        let auroraTimer;
+        // --- 快門音效邏輯 (MP3 高相容性) ---
+        const shutterSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3');
+        shutterSound.volume = 0.8;
 
-        // 稜鏡特效與彩蛋邏輯
+        function triggerCameraEffect() {
+            shutterSound.currentTime = 0;
+            shutterSound.play().catch(e => console.log("音效被瀏覽器阻擋:", e));
+        }
+
+        const openResumeBtn = document.getElementById('open-resume-btn');
+        const avatarImg = document.getElementById('avatar-img');
+        const socialBtns = document.querySelectorAll('.social-btn');
+
+        avatarImg.addEventListener('click', () => { triggerCameraEffect(); imageModal.classList.add('show'); imageModal.style.display = 'flex'; });
+        openResumeBtn.addEventListener('click', () => { triggerCameraEffect(); resumeModal.classList.add('show'); resumeModal.style.display = 'flex'; });
+        socialBtns.forEach(btn => { btn.addEventListener('click', () => { triggerCameraEffect(); }); });
+
+        // --- 流星雨彩蛋邏輯 ---
+        let prismClickCount = 0;
+        let meteorClickTimer;
+        let meteorGenerateInterval;
+
         const prismBox = document.getElementById('vibe-trigger');
         const hintText = document.querySelector('.hint-text');
 
@@ -270,35 +282,75 @@
             prismBox.classList.toggle('active');
             hintText.style.opacity = prismBox.classList.contains('active') ? '0' : '1';
 
-            // --- 彩蛋邏輯開始 ---
+            // 雙擊觸發流星雨
             prismClickCount++;
+            clearTimeout(meteorClickTimer);
             
-            // 每次點擊都重置「計數清除定時器」，必須連續點擊才算數
-            clearTimeout(auroraTimer);
-            
-            // 如果超過 2 秒沒點擊，就將計數歸零
-            auroraTimer = setTimeout(() => {
-                prismClickCount = 0;
-            }, 2000);
+            // 1 秒內沒有連續點擊就歸零
+            meteorClickTimer = setTimeout(() => { prismClickCount = 0; }, 1000);
 
-            // 檢查是否連續點擊 3 次或以上
-            if (prismClickCount >= 3) {
-                document.body.classList.add('aurora-active');
-                prismClickCount = 0; // 啟動後歸零
+            if (prismClickCount >= 2) {
+                document.body.classList.toggle('meteor-active');
+                prismClickCount = 0; 
+
+                if (document.body.classList.contains('meteor-active')) {
+                    startMeteors();
+                } else {
+                    stopMeteors();
+                }
             }
-            // --- 彩蛋邏輯結束 ---
         });
 
-        // Modals 邏輯 (保持不變)
+        function startMeteors() {
+            createMeteor(); // 先發射第一顆
+            meteorGenerateInterval = setInterval(() => {
+                // 創造不規律的間歇感
+                if (Math.random() > 0.4) {
+                    createMeteor();
+                }
+            }, 600); // 每 0.6 秒隨機決定要不要生成流星
+        }
+
+        function stopMeteors() {
+            clearInterval(meteorGenerateInterval);
+            document.getElementById('meteor-container').innerHTML = '';
+        }
+
+        function createMeteor() {
+            const container = document.getElementById('meteor-container');
+            if (!container) return;
+
+            const meteor = document.createElement('div');
+            meteor.classList.add('meteor');
+
+            // 隨機決定從畫面上方還是右方出現
+            const isTopEdge = Math.random() > 0.5;
+            if (isTopEdge) {
+                meteor.style.top = '-10px';
+                meteor.style.left = (Math.random() * window.innerWidth) + 'px';
+            } else {
+                meteor.style.top = (Math.random() * window.innerHeight * 0.7) + 'px';
+                meteor.style.right = '-10px';
+                meteor.style.left = 'auto';
+            }
+
+            // 流星劃過的速度隨機 (0.8秒 ~ 1.8秒)
+            const duration = 0.8 + Math.random();
+            meteor.style.animationDuration = duration + 's';
+
+            container.appendChild(meteor);
+
+            // 動畫結束後自動清除元素，保持網頁效能
+            setTimeout(() => {
+                meteor.remove();
+            }, duration * 1000 + 100);
+        }
+
+        // --- Modals 關閉邏輯 ---
         const resumeModal = document.getElementById('resume-modal');
         const imageModal = document.getElementById('image-modal');
-        const openResumeBtn = document.getElementById('open-resume-btn');
-        const avatarImg = document.getElementById('avatar-img');
         const closeResumeBtn = document.getElementById('close-modal-btn');
         const closeImgBtn = document.getElementById('close-img-btn');
-
-        openResumeBtn.onclick = () => { resumeModal.classList.add('show'); resumeModal.style.display = 'flex'; }
-        avatarImg.onclick = () => { imageModal.classList.add('show'); imageModal.style.display = 'flex'; }
 
         const closeAllModals = () => {
             if (resumeModal.classList.contains('show')) {
