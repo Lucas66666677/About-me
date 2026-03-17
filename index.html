@@ -9,6 +9,9 @@
             --bg-color: #000000;
             --text-color: #f0f0f0;
             --theme-color: #555;
+            /* 極光顏色定義 */
+            --aurora-green: rgba(0, 255, 136, 0.7);
+            --aurora-teal: rgba(0, 200, 255, 0.5);
         }
 
         body {
@@ -22,8 +25,62 @@
             align-items: center;
             min-height: 100vh;
             overflow-x: hidden;
+            position: relative; /* 為了讓極光層疊在背景上 */
         }
 
+        /* --- 極光背景容器 (平常隱藏) --- */
+        #aurora-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle at bottom left, #051020 0%, #000 70%); /* 深邃的夜空藍黑 */
+            opacity: 0; /* 平常透明 */
+            pointer-events: none; /* 滑鼠穿透，不影響點擊 */
+            z-index: 0; /* 在最底層，但在純黑背景之上 */
+            transition: opacity 2s ease-in-out; /* 慢慢浮現的過場 */
+        }
+
+        /* 當啟動彩蛋時，顯示極光 */
+        body.aurora-active #aurora-container {
+            opacity: 1;
+        }
+
+        /* 極光層 1 (綠色) */
+        #aurora-container::before,
+        #aurora-container::after {
+            content: '';
+            position: absolute;
+            width: 150%;
+            height: 150%;
+            top: -25%;
+            left: -25%;
+            background: 
+                repeating-linear-gradient(90deg, transparent, transparent 15px, var(--aurora-green) 20px, var(--aurora-green) 25px, transparent 30px, transparent 40px),
+                repeating-linear-gradient(-90deg, transparent, transparent 15px, var(--aurora-green) 20px, var(--aurora-green) 25px, transparent 30px, transparent 40px);
+            filter: blur(10px) contrast(3); /* 創造有機、模糊的光束感 */
+            animation: flowingAurora 60s infinite alternate; /* 慢速流動動畫 */
+        }
+
+        /* 極光層 2 (藍綠色，不同的旋轉角度與動畫時間) */
+        #aurora-container::after {
+            background: 
+                repeating-linear-gradient(45deg, transparent, transparent 10px, var(--aurora-teal) 15px, var(--aurora-teal) 20px, transparent 25px, transparent 35px),
+                repeating-linear-gradient(-45deg, transparent, transparent 10px, var(--aurora-teal) 15px, var(--aurora-teal) 20px, transparent 25px, transparent 35px);
+            filter: blur(15px) contrast(2);
+            animation-duration: 90s; /* 更慢的層次感 */
+            animation-delay: -30s; /* 讓它們不同步 */
+        }
+
+        /* 極光流動動畫 */
+        @keyframes flowingAurora {
+            0% { transform: scale(1) translate(0, 0); opacity: 0.8; }
+            50% { transform: scale(1.1) translate(5%, 5%); opacity: 1; }
+            100% { transform: scale(1) translate(-5%, -5%); opacity: 0.8; }
+        }
+
+        /* --- 主內容容器 (確保在極光之上) --- */
         .card-container {
             width: 90%;
             max-width: 500px;
@@ -32,7 +89,8 @@
             align-items: center;
             text-align: center;
             padding: 2rem;
-            z-index: 1;
+            z-index: 1; /* 層級在極光背景之上 */
+            position: relative; /* 為了讓 z-index 生效 */
         }
 
         .avatar {
@@ -117,6 +175,8 @@
 </head>
 <body>
 
+    <div id="aurora-container"></div>
+
     <div class="card-container">
         <div class="profile">
             <img src="me.jpg" alt="劉家誠" class="avatar" id="avatar-img">
@@ -150,8 +210,8 @@
 
         <div class="social-links">
             <button id="open-resume-btn" class="btn">經歷與作品</button>
-            <a href="https://www.instagram.com/lucas66666616?igsh=bWwyN2UwZmYybjFx" class="btn social-btn" target="_blank">Instagram</a>
-            <a href="https://github.com/Lucas66666677" class="btn social-btn" target="_blank">GitHub</a>
+            <a href="https://www.instagram.com/lucas66666616?igsh=bWwyN2UwZmYybjFx" class="btn" target="_blank">Instagram</a>
+            <a href="https://github.com/Lucas66666677" class="btn" target="_blank">GitHub</a>
         </div>
     </div>
 
@@ -164,26 +224,26 @@
             <h3>學歷背景 (Education)</h3>
             <ul>
                 <li><strong>國立成功大學 光電科學與工程學系</strong></li>
-                <li>預計申請瑞典 KTH 皇家理工學院 3+2 雙聯學位計畫，拓展國際工程視野。</li>
+                <li>預計申請瑞典 KTH 皇家理工學院 3+2 雙聯學位計畫。</li>
             </ul>
 
             <h3>技術堆疊與專業修課 (Tech Stack & Coursework)</h3>
             <ul>
-                <li><strong>硬體實驗與實作能力：</strong>透過「光學實驗」熟練掌握光學系統架設與精準的<b>光路調校 (Alignment)</b>；經由「電子學實驗」具備<b>基本電路圖設計、實際焊接電路板</b>與訊號量測的動手除錯能力。</li>
-                <li><strong>AI 與程式技術：</strong>修習「生成式AI實務」與「人文導論」，具備 LLM 應用開發與 Prompt Engineering 實戰經驗；具備 C 語言基礎程式設計能力。</li>
-                <li><strong>語言能力：</strong>高階英文 (<b>IELTS 7.5</b>)，具備流暢閱讀國際技術文獻與跨國溝通能力。</li>
+                <li><strong>硬體實驗與實作能力：</strong>透過「光學實驗」掌握<b>光路調校 (Alignment)</b>；經由「電子學實驗」具備<b>基本電路圖設計、實際焊接電路板</b>之動手能力。</li>
+                <li><strong>AI 與程式技術：</strong>修習「生成式AI實務」，具備 LLM 應用與 Prompt Engineering 實戰經驗；具備 C 語言基礎程式設計能力。</li>
+                <li><strong>語言能力：</strong>高階英文 (<b>IELTS 7.5</b>)。</li>
             </ul>
 
             <h3>實務經歷與專案 (Experience & Projects)</h3>
             <ul>
                 <li><strong>生成式 AI 應用開發：</strong>運用 LLM 獨立開發「自動化英文助手」、「AI 手寫辨識系統」以及「情感互動機器人」。</li>
-                <li><strong>STEAM 軟硬體整合講師：</strong>指導學生將 Scratch 與硬體（micro:bit）結合，具備基礎感測器控制與跨領域技術傳達能力。</li>
-                <li><strong>高階英語講師 (IELTS 培訓)：</strong>負責雅思一對一教學，展現優異邏輯拆解能力，並開發 AI 輔助工具達成教學流程數位化。</li>
+                <li><strong>STEAM 軟硬體整合講師：</strong>指導學生將 Scratch 與硬體（micro:bit）結合。</li>
+                <li><strong>高階英語講師 (IELTS 培訓)：</strong>負責雅思教學，並開發 AI 輔助工具達成教學流程數位化。</li>
             </ul>
 
             <h3>個人專案與興趣 (Interests)</h3>
             <ul>
-                <li><strong>底片攝影：</strong>熱愛光學成像，使用 Nikon FM/FE 系統與定焦鏡創作，對光影具敏銳度。</li>
+                <li><strong>底片攝影：</strong>使用 Nikon FM/FE 系統與定焦鏡創作。</li>
                 <li><strong>國際自助探索：</strong>具備獨立規劃能力，近期完成冰島環島極光自駕專案。</li>
             </ul>
         </div>
@@ -197,58 +257,48 @@
     </div>
 
     <script>
-        // --- 穩定的 MP3 快門音效 ---
-        // 使用 mixkit 提供的免費高品質音效，mp3 格式全平台支援
-        const shutterSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3');
-        shutterSound.volume = 0.8; // 設定音量
+        // --- 彩蛋點擊計數器 ---
+        let prismClickCount = 0;
+        let auroraTimer;
 
-        function triggerCameraEffect() {
-            // 每次點擊都從頭播放，確保連點有效
-            shutterSound.currentTime = 0;
-            // 加上 catch 防止瀏覽器阻擋自動播放報錯
-            shutterSound.play().catch(e => console.log("音效被瀏覽器阻擋:", e));
-        }
-
-        // --- 綁定點擊特效 ---
-        const avatarImg = document.getElementById('avatar-img');
-        const openResumeBtn = document.getElementById('open-resume-btn');
-        const socialBtns = document.querySelectorAll('.social-btn'); 
-
-        // 大頭照點擊
-        avatarImg.addEventListener('click', () => {
-            triggerCameraEffect();
-            imageModal.classList.add('show'); 
-            imageModal.style.display = 'flex'; 
-        });
-
-        // 經歷按鈕點擊
-        openResumeBtn.addEventListener('click', () => {
-            triggerCameraEffect();
-            resumeModal.classList.add('show'); 
-            resumeModal.style.display = 'flex'; 
-        });
-
-        // IG 和 GitHub 點擊 
-        socialBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                triggerCameraEffect();
-            });
-        });
-
-        // --- 稜鏡特效 ---
+        // 稜鏡特效與彩蛋邏輯
         const prismBox = document.getElementById('vibe-trigger');
         const hintText = document.querySelector('.hint-text');
 
         prismBox.addEventListener('click', () => {
+            // 原有的稜鏡起動動畫
             prismBox.classList.toggle('active');
             hintText.style.opacity = prismBox.classList.contains('active') ? '0' : '1';
+
+            // --- 彩蛋邏輯開始 ---
+            prismClickCount++;
+            
+            // 每次點擊都重置「計數清除定時器」，必須連續點擊才算數
+            clearTimeout(auroraTimer);
+            
+            // 如果超過 2 秒沒點擊，就將計數歸零
+            auroraTimer = setTimeout(() => {
+                prismClickCount = 0;
+            }, 2000);
+
+            // 檢查是否連續點擊 3 次或以上
+            if (prismClickCount >= 3) {
+                document.body.classList.add('aurora-active');
+                prismClickCount = 0; // 啟動後歸零
+            }
+            // --- 彩蛋邏輯結束 ---
         });
 
-        // --- 關閉 Modal 邏輯 ---
+        // Modals 邏輯 (保持不變)
         const resumeModal = document.getElementById('resume-modal');
         const imageModal = document.getElementById('image-modal');
+        const openResumeBtn = document.getElementById('open-resume-btn');
+        const avatarImg = document.getElementById('avatar-img');
         const closeResumeBtn = document.getElementById('close-modal-btn');
         const closeImgBtn = document.getElementById('close-img-btn');
+
+        openResumeBtn.onclick = () => { resumeModal.classList.add('show'); resumeModal.style.display = 'flex'; }
+        avatarImg.onclick = () => { imageModal.classList.add('show'); imageModal.style.display = 'flex'; }
 
         const closeAllModals = () => {
             if (resumeModal.classList.contains('show')) {
@@ -263,11 +313,7 @@
 
         closeResumeBtn.onclick = closeAllModals;
         closeImgBtn.onclick = closeAllModals;
-        window.onclick = (e) => { 
-            if (e.target === resumeModal || e.target === imageModal) {
-                closeAllModals();
-            } 
-        }
+        window.onclick = (e) => { if (e.target === resumeModal || e.target === imageModal) { closeAllModals(); } }
     </script>
 
 </body>
